@@ -1,6 +1,7 @@
 package com.anovak92.passwordholder;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -93,13 +94,13 @@ public class MainActivity extends AppCompatActivity {
     private void displayCredentials() {
         for (Credentials credential: credentialsMap.values()) {
             TextView tw = new TextView(this);
-            tw.setText(String.format(Locale.US,"[%d]:[%s]:[%s]",
-                    credential.getId(),
+            tw.setText(String.format(Locale.US,"%s : %s",
                     credential.getAccountName(),
                     credential.getPassword()
             ));
             tw.setTag(credential.getId());
             tw.setTextSize(24f);
+            tw.setTextColor(Color.BLACK);
             tw.setOnClickListener(v -> editCredential((Integer) v.getTag()));
 
             contentLayout.addView(tw);
