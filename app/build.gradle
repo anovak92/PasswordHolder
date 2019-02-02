@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply from: "$project.rootDir/tools/script-pmd.gradle"
 
 android {
     compileSdkVersion 28
@@ -15,6 +16,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    lintOptions {
+        lintConfig file("$project.rootDir/tools/rules-lint.xml")
+        htmlOutput file("$project.buildDir/outputs/lint/lint.html")
+        warningsAsErrors true
+        xmlReport false
     }
 }
 
