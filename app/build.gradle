@@ -23,6 +23,10 @@ android {
         warningsAsErrors true
         xmlReport false
     }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
 }
 
 dependencies {
