@@ -7,6 +7,6 @@ public interface CredentialsRepo {
 
     Map<Integer, Credentials> loadCredentials() throws IOException;
 
-    void saveCredentials() throws IOException;
+    void saveCredentials(Map<Integer, Credentials> credentials) throws IOException;
 
 }
