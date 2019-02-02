@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(v -> addCredentials());
 
         contentLayout = findViewById(R.id.content_view);
-        File dataFile = new File("credentials.df");
+        File dataFile = new File(getFilesDir(), Preferences.DATA_FILE_NAME);
         if (!dataFile.exists()) {
             try {
                 boolean created = dataFile.createNewFile();
@@ -108,14 +108,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void addCredentials() {
         Intent addCredentialsIntent = new Intent(this, CredentialsActivity.class);
-        addCredentialsIntent.putExtra(CredentialsActivity.MODE_KEY,CredentialsActivity.Mode.CREATE);
+        addCredentialsIntent
+                .putExtra(CredentialsActivity.MODE_KEY,CredentialsActivity.Mode.CREATE.toString())
+                .putExtra(CredentialsActivity.ID_KEY, getFreeId());
         startActivity(addCredentialsIntent);
+    }
+
+    private int getFreeId() {
+        for (int i = 0; i <= credentialsMap.keySet().size(); i++) {
+            if (!credentialsMap.keySet().contains(i)) {
+                return i;
+            }
+        }
+        throw new RuntimeException("My math sucks");
     }
 
     private void editCredential(int id) {
         Intent editCredentialsIntent = new Intent(this, CredentialsActivity.class);
-        editCredentialsIntent.putExtra(CredentialsActivity.MODE_KEY,CredentialsActivity.Mode.EDIT);
-        editCredentialsIntent.putExtra(CredentialsActivity.ID_KEY, id);
+        editCredentialsIntent
+                .putExtra(CredentialsActivity.MODE_KEY,CredentialsActivity.Mode.EDIT.toString())
+                .putExtra(CredentialsActivity.ID_KEY, id);
         startActivity(editCredentialsIntent);
     }
 
