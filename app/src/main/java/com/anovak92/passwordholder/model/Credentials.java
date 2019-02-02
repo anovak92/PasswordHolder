@@ -24,4 +24,17 @@ public class Credentials {
         return password;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Credentials) {
+            Credentials cmp = (Credentials) obj;
+
+            return this.id == cmp.id
+                    && this.accountName.equals(cmp.accountName)
+                    && this.password.equals(cmp.password);
+
+        } else {
+            return false;
+        }
+    }
 }

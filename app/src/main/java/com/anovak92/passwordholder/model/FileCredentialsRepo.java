@@ -1,6 +1,7 @@
 package com.anovak92.passwordholder.model;
 
 import android.annotation.SuppressLint;
+import android.support.annotation.NonNull;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -25,27 +26,25 @@ public class FileCredentialsRepo implements CredentialsRepo {
     public Map<Integer, Credentials> loadCredentials() throws IOException {
         Map<Integer, Credentials> loadedCredentials = new HashMap<>();
         try (BufferedReader fileReader = new BufferedReader(new FileReader(dataFile))) {
-            Credentials next;
-            while ((next = getNext(fileReader)) != null) {
-                loadedCredentials.put(next.getId(),next);
+            String line;
+            Credentials tmp;
+            while ((line = fileReader.readLine()) != null) {
+                tmp = parseLine(line);
+                loadedCredentials.put(tmp.getId(), tmp);
             }
             return loadedCredentials;
         }
     }
 
-    private Credentials getNext(BufferedReader fileReader) throws IOException {
-        String regex = "^(id:)(%d+)(;;account:)(\\W+)(;;passwd:)(\\W+)$";
-        String line = fileReader.readLine();
-        if (line != null) {
 
-            int id = Integer.parseInt(line.replaceAll(regex,"$2"));
-            String accountName = line.replaceAll(regex,"$4");
-            String password = line.replaceAll(regex,"$6");
+    private Credentials parseLine(@NonNull String line) {
+        String regex = "^(id:)(\\d+)(;;account:)(\\S+)(;;passwd:)(\\S+)";
 
-            return new Credentials(id, accountName, password);
-        } else {
-            return null;
-        }
+        int id = Integer.parseInt(line.replaceAll(regex,"$2"));
+        String accountName = line.replaceAll(regex,"$4");
+        String password = line.replaceAll(regex,"$6");
+
+        return new Credentials(id, accountName, password);
     }
 
     @Override
@@ -58,14 +57,19 @@ public class FileCredentialsRepo implements CredentialsRepo {
     }
 
     private void saveNext(BufferedWriter fileWriter, Credentials credential) throws IOException {
+
+        String saveLine = getLine(credential);
+
+        fileWriter.write(saveLine);
+        fileWriter.newLine();
+    }
+
+    private String getLine(Credentials credential) {
         String format = "id:%d;;account:%s;;passwd:%s";
-        String saveLine = String.format(Locale.US, format,
+        return String.format(Locale.US, format,
                 credential.getId(),
                 credential.getAccountName(),
                 credential.getPassword()
         );
-
-        fileWriter.write(saveLine);
-        fileWriter.newLine();
     }
 }
