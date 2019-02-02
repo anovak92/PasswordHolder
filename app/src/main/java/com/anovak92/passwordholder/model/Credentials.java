@@ -6,6 +6,10 @@ public class Credentials {
     private String accountName;
     private String password;
 
+    public Credentials(int id) {
+        this(id, "", "");
+    }
+
     public Credentials(int id, String accountName, String password) {
         this.id = id;
         this.accountName = accountName;
@@ -36,5 +40,13 @@ public class Credentials {
         } else {
             return false;
         }
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
