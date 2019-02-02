@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                     credential.getPassword()
             ));
             tw.setTag(credential.getId());
-
+            tw.setTextSize(24f);
             tw.setOnClickListener(v -> editCredential((Integer) v.getTag()));
 
             contentLayout.addView(tw);
