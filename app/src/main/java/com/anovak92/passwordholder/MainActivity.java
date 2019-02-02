@@ -1,5 +1,6 @@
 package com.anovak92.passwordholder;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -7,9 +8,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.anovak92.passwordholder.model.Credentials;
+import com.anovak92.passwordholder.model.CredentialsRepo;
+import com.anovak92.passwordholder.model.FileCredentialsRepo;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    private CredentialsRepo credentialsRepo;
+    private LinearLayout contentLayout;
+    private Map<Integer, Credentials> credentialsMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,13 +35,22 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        fab.setOnClickListener(v -> addCredentials());
+
+        contentLayout = findViewById(R.id.content_view);
+        File dataFile = new File("credentials.df");
+        if (!dataFile.exists()) {
+            try {
+                boolean created = dataFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                String errMessage = "Failed to create file for saving credentials. "
+                         + "Please restart the app";
+                showErrorSnackBar(errMessage);
             }
-        });
+        }
+
+        credentialsRepo = new FileCredentialsRepo(dataFile);
     }
 
     @Override
@@ -48,5 +73,53 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        contentLayout.removeAllViewsInLayout();
+        try {
+            credentialsMap = credentialsRepo.loadCredentials();
+            displayCredentials();
+        } catch (IOException e) {
+            e.printStackTrace();
+            String toastText = "Something gone wrong while loading credentials."
+                    + "Please restart the app";
+            showErrorSnackBar(toastText);
+        }
+    }
+
+    private void displayCredentials() {
+        for (Credentials credential: credentialsMap.values()) {
+            TextView tw = new TextView(this);
+            tw.setText(String.format(Locale.US,"[%d]:[%s]:[%s]",
+                    credential.getId(),
+                    credential.getAccountName(),
+                    credential.getPassword()
+            ));
+            tw.setTag(credential.getId());
+
+            tw.setOnClickListener(v -> editCredential((Integer) v.getTag()));
+
+            contentLayout.addView(tw);
+        }
+    }
+
+    private void addCredentials() {
+        Intent addCredentialsIntent = new Intent(this, CredentialsActivity.class);
+        addCredentialsIntent.putExtra(CredentialsActivity.MODE_KEY,CredentialsActivity.Mode.CREATE);
+        startActivity(addCredentialsIntent);
+    }
+
+    private void editCredential(int id) {
+        Intent editCredentialsIntent = new Intent(this, CredentialsActivity.class);
+        editCredentialsIntent.putExtra(CredentialsActivity.MODE_KEY,CredentialsActivity.Mode.EDIT);
+        editCredentialsIntent.putExtra(CredentialsActivity.ID_KEY, id);
+        startActivity(editCredentialsIntent);
+    }
+
+    private void showErrorSnackBar(String errMessage) {
+        Snackbar.make(contentLayout, errMessage, Toast.LENGTH_SHORT).show();
     }
 }
