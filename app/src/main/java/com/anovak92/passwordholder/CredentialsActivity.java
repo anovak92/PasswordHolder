@@ -124,6 +124,7 @@ public class CredentialsActivity extends AppCompatActivity implements Credential
     public void save() {
         if (!validate()) {
             showErrorSnackBar("Please fill all fields.");
+            return;
         }
 
         try {
