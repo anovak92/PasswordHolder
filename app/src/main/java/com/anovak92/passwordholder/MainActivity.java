@@ -6,10 +6,11 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,8 +25,12 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+    private RecyclerView contentView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
+
     private CredentialsRepo credentialsRepo;
-    private LinearLayout contentLayout;
     private Map<Integer, Credentials> credentialsMap;
 
     @Override
@@ -35,10 +40,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        contentView = findViewById(R.id.content_recycler_view);
+        mLayoutManager = new LinearLayoutManager(this);
+        contentView.setLayoutManager(mLayoutManager);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(v -> addCredentials());
 
-        contentLayout = findViewById(R.id.content_view);
         File dataFile = new File(getFilesDir(), Preferences.DATA_FILE_NAME);
         if (!dataFile.exists()) {
             try {
@@ -52,6 +60,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         credentialsRepo = new FileCredentialsRepo(dataFile);
+        try {
+            credentialsMap = credentialsRepo.loadCredentials();
+            mAdapter = new CredentialsAdapter(credentialsMap);
+            contentView.setAdapter(mAdapter);
+        } catch (IOException e) {
+            e.printStackTrace();
+            String toastText = "Something gone wrong while loading credentials."
+                    + "Please restart the app";
+            showErrorSnackBar(toastText);
+        }
     }
 
     @Override
@@ -79,16 +97,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        contentLayout.removeAllViewsInLayout();
-        try {
-            credentialsMap = credentialsRepo.loadCredentials();
-            displayCredentials();
-        } catch (IOException e) {
-            e.printStackTrace();
-            String toastText = "Something gone wrong while loading credentials."
-                    + "Please restart the app";
-            showErrorSnackBar(toastText);
-        }
     }
 
     private void displayCredentials() {
@@ -102,8 +110,6 @@ public class MainActivity extends AppCompatActivity {
             tw.setTextSize(24f);
             tw.setTextColor(Color.BLACK);
             tw.setOnClickListener(v -> editCredential((Integer) v.getTag()));
-
-            contentLayout.addView(tw);
         }
     }
 
@@ -133,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showErrorSnackBar(String errMessage) {
-        Snackbar.make(contentLayout, errMessage, Toast.LENGTH_SHORT).show();
+        Snackbar.make(contentView, errMessage, Toast.LENGTH_SHORT).show();
     }
+
 }
