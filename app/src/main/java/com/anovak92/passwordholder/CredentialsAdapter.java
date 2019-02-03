@@ -5,26 +5,26 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.anovak92.passwordholder.model.Credentials;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class CredentialsAdapter extends
         RecyclerView.Adapter<CredentialsAdapter.CredentialsViewHolder> {
 
+    public interface Callback {
+        void view(int id);
+
+        void delete(int position);
+    }
+
+    private Callback callback;
     private List<Credentials> mDataset;
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
     static class CredentialsViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
         TextView accountView;
         TextView usernameView;
         TextView passwordView;
@@ -36,13 +36,14 @@ public class CredentialsAdapter extends
             this.accountView = (TextView) itemView.getChildAt(0);
             this.usernameView = (TextView) itemView.getChildAt(1);
             this.passwordView = (TextView) itemView.getChildAt(2);
-            this.deleteButton = (Button) ((FrameLayout)itemView.getChildAt(3)).getChildAt(0);
+            this.deleteButton = (Button) itemView.getChildAt(3);
         }
     }
 
 
-    CredentialsAdapter(Map<Integer, Credentials> credentialsDataset) {
-        mDataset = new ArrayList<>(credentialsDataset.values());
+    CredentialsAdapter(List<Credentials> credentialsDataset, Callback callback) {
+        this.callback = callback;
+        this.mDataset = credentialsDataset;
     }
 
     @NonNull
@@ -61,10 +62,8 @@ public class CredentialsAdapter extends
         holder.usernameView.setText(element.getAccountName());
         holder.passwordView.setText(element.getPassword());
 
-        holder.deleteButton.setOnClickListener(v -> {
-            mDataset.remove(position);
-            notifyDataSetChanged();
-        });
+        holder.deleteButton.setOnClickListener(v -> callback.delete(position));
+        holder.itemView.setOnClickListener(v -> callback.view(element.getId()));
 
     }
 

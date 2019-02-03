@@ -1,7 +1,6 @@
 package com.anovak92.passwordholder;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,7 +10,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.anovak92.passwordholder.model.Credentials;
@@ -20,8 +18,9 @@ import com.anovak92.passwordholder.model.FileCredentialsRepo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,9 +28,20 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private CredentialsAdapter.Callback callback = new CredentialsAdapter.Callback() {
+        @Override
+        public void view(int id) {
+            viewCredential(id);
+        }
+
+        @Override
+        public void delete(int id) {
+            deleteCredential(id);
+        }
+    };
 
     private CredentialsRepo credentialsRepo;
-    private Map<Integer, Credentials> credentialsMap;
+    private List<Credentials> credentialsDataset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
         credentialsRepo = new FileCredentialsRepo(dataFile);
         try {
-            credentialsMap = credentialsRepo.loadCredentials();
-            mAdapter = new CredentialsAdapter(credentialsMap);
+            credentialsDataset = credentialsRepo.loadCredentialsList();
+            mAdapter = new CredentialsAdapter(credentialsDataset,callback);
             contentView.setAdapter(mAdapter);
         } catch (IOException e) {
             e.printStackTrace();
@@ -97,19 +107,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        updateCredentials();
     }
 
-    private void displayCredentials() {
-        for (Credentials credential: credentialsMap.values()) {
-            TextView tw = new TextView(this);
-            tw.setText(String.format(Locale.US,"%s : %s",
-                    credential.getAccountName(),
-                    credential.getPassword()
-            ));
-            tw.setTag(credential.getId());
-            tw.setTextSize(24f);
-            tw.setTextColor(Color.BLACK);
-            tw.setOnClickListener(v -> editCredential((Integer) v.getTag()));
+    private void updateCredentials() {
+        try {
+            credentialsDataset = credentialsRepo.loadCredentialsList();
+            mAdapter = new CredentialsAdapter(credentialsDataset, callback);
+            contentView.swapAdapter(mAdapter, false);
+        } catch (IOException e) {
+            e.printStackTrace();
+            String toastText = "Something gone wrong while loading credentials."
+                    + "Please restart the app";
+            showErrorSnackBar(toastText);
         }
     }
 
@@ -122,18 +132,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private int getFreeId() {
-        for (int i = 0; i <= credentialsMap.keySet().size(); i++) {
-            if (!credentialsMap.keySet().contains(i)) {
-                return i;
-            }
+        Set<Integer> usedIds = new HashSet<>(credentialsDataset.size());
+        Set<Integer> rangeIds = new HashSet<>(credentialsDataset.size() + 1);
+        for (Credentials credentials: credentialsDataset) {
+            usedIds.add(credentials.getId());
         }
-        throw new RuntimeException("My math sucks");
+        for (int i = 0; i <= credentialsDataset.size(); i++) {
+            rangeIds.add(i);
+        }
+        rangeIds.removeAll(usedIds);
+        return rangeIds.iterator().next();
     }
 
-    private void editCredential(int id) {
+    private void viewCredential(int id) {
         Intent editCredentialsIntent = new Intent(this, CredentialsActivity.class);
         editCredentialsIntent
-                .putExtra(CredentialsActivity.MODE_KEY,CredentialsActivity.Mode.EDIT.toString())
+                .putExtra(CredentialsActivity.MODE_KEY,CredentialsActivity.Mode.VIEW.toString())
                 .putExtra(CredentialsActivity.ID_KEY, id);
         startActivity(editCredentialsIntent);
     }
@@ -142,4 +156,18 @@ public class MainActivity extends AppCompatActivity {
         Snackbar.make(contentView, errMessage, Toast.LENGTH_SHORT).show();
     }
 
+    private void deleteCredential(int position) {
+        credentialsDataset.remove(position);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            credentialsRepo.saveCredentialsList(credentialsDataset);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
