@@ -9,7 +9,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,6 +38,20 @@ public class FileCredentialsRepo implements CredentialsRepo {
         }
     }
 
+    @Override
+    public List<Credentials> loadCredentialsList() throws IOException {
+        List<Credentials> loadedCredentials = new ArrayList<>();
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(dataFile))) {
+            String line;
+            Credentials tmp;
+            while ((line = fileReader.readLine()) != null) {
+                tmp = parseLine(line);
+                loadedCredentials.add(tmp);
+            }
+            return loadedCredentials;
+        }
+    }
+
 
     private Credentials parseLine(@NonNull String line) {
         String regex = "^(id:)(\\d+)(;;account:)(\\S+)(;;passwd:)(\\S+)";
@@ -51,6 +67,15 @@ public class FileCredentialsRepo implements CredentialsRepo {
     public void saveCredentials(Map<Integer, Credentials> credentials) throws IOException {
         try (BufferedWriter fileWtriter = new BufferedWriter(new FileWriter(dataFile))) {
             for (Credentials credential: credentials.values()) {
+                saveNext(fileWtriter, credential);
+            }
+        }
+    }
+
+    @Override
+    public void saveCredentialsList(List<Credentials> credentials) throws IOException {
+        try (BufferedWriter fileWtriter = new BufferedWriter(new FileWriter(dataFile))) {
+            for (Credentials credential: credentials) {
                 saveNext(fileWtriter, credential);
             }
         }
