@@ -3,29 +3,43 @@ package com.anovak92.passwordholder.model;
 public class Credentials {
 
     private int id;
-    private String accountName;
+    private String accountname;
+    private String username;
     private String password;
 
     public Credentials(int id) {
-        this(id, "", "");
-    }
-
-    public Credentials(int id, String accountName, String password) {
         this.id = id;
-        this.accountName = accountName;
-        this.password = password;
+        accountname = "";
+        username = "";
+        password = "";
     }
 
     public int getId() {
         return id;
     }
 
-    public String getAccountName() {
-        return accountName;
+    public String getAccountname() {
+        return accountname;
     }
 
     public String getPassword() {
         return password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setAccountname(String accountname) {
+        this.accountname = accountname;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
@@ -34,19 +48,11 @@ public class Credentials {
             Credentials cmp = (Credentials) obj;
 
             return this.id == cmp.id
-                    && this.accountName.equals(cmp.accountName)
+                    && this.accountname.equals(cmp.accountname)
                     && this.password.equals(cmp.password);
 
         } else {
             return false;
         }
-    }
-
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

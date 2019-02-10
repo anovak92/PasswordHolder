@@ -54,13 +54,18 @@ public class FileCredentialsRepo implements CredentialsRepo {
 
 
     private Credentials parseLine(@NonNull String line) {
-        String regex = "^(id:)(\\d+)(;;account:)(\\S+)(;;passwd:)(\\S+)";
+        String regex = "^(id:)(\\d+)(;;account:)(\\S+)(;;username:)(\\S+)(;;passwd:)(\\S+)";
 
         int id = Integer.parseInt(line.replaceAll(regex,"$2"));
-        String accountName = line.replaceAll(regex,"$4");
-        String password = line.replaceAll(regex,"$6");
+        String accountname = line.replaceAll(regex,"$4");
+        String username = line.replaceAll(regex,"$6");
+        String password = line.replaceAll(regex,"$8");
 
-        return new Credentials(id, accountName, password);
+        Credentials result = new Credentials(id);
+        result.setAccountname(accountname);
+        result.setUsername(username);
+        result.setPassword(password);
+        return result;
     }
 
     @Override
@@ -90,10 +95,11 @@ public class FileCredentialsRepo implements CredentialsRepo {
     }
 
     private String getLine(Credentials credential) {
-        String format = "id:%d;;account:%s;;passwd:%s";
+        String format = "id:%d;;account:%s;;username:%s;;passwd:%s";
         return String.format(Locale.US, format,
                 credential.getId(),
-                credential.getAccountName(),
+                credential.getAccountname(),
+                credential.getUsername(),
                 credential.getPassword()
         );
     }

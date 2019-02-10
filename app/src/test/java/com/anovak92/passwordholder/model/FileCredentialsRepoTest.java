@@ -40,17 +40,25 @@ public class FileCredentialsRepoTest {
         testDataset = new HashMap<>(5);
         listDataset = new ArrayList<>(5);
 
-        testDataset.put(0, new Credentials(0,"testacc_1","test_password_1"));
-        testDataset.put(1, new Credentials(1,"testacc_2","test_password_2"));
-        testDataset.put(2, new Credentials(2,"testacc_3","test_password_3"));
-        testDataset.put(3, new Credentials(3,"testacc_4","test_password_4"));
-        testDataset.put(4, new Credentials(4,"testacc_5","test_password_5"));
+        testDataset.put(0, createTestCredentials(0,"testacc_1","test_username1","test_password_1"));
+        testDataset.put(1, createTestCredentials(1,"testacc_2","test_username2","test_password_2"));
+        testDataset.put(2, createTestCredentials(2,"testacc_3","test_username3","test_password_3"));
+        testDataset.put(3, createTestCredentials(3,"testacc_4","test_username4","test_password_4"));
+        testDataset.put(4, createTestCredentials(4,"testacc_5","test_username5","test_password_5"));
 
-        listDataset.add(new Credentials(0,"testacc_1","test_password_1"));
-        listDataset.add(new Credentials(1,"testacc_2","test_password_2"));
-        listDataset.add(new Credentials(2,"testacc_3","test_password_3"));
-        listDataset.add(new Credentials(3,"testacc_4","test_password_4"));
-        listDataset.add(new Credentials(4,"testacc_5","test_password_5"));
+        listDataset.add(createTestCredentials(0,"testacc_1","test_username1","test_password_1"));
+        listDataset.add(createTestCredentials(1,"testacc_2","test_username2","test_password_2"));
+        listDataset.add(createTestCredentials(2,"testacc_3","test_username3","test_password_3"));
+        listDataset.add(createTestCredentials(3,"testacc_4","test_username4","test_password_4"));
+        listDataset.add(createTestCredentials(4,"testacc_5","test_username5","test_password_5"));
+    }
+
+    private static Credentials createTestCredentials(int id, String acc, String user, String passwd){
+        Credentials result = new Credentials(id);
+        result.setAccountname(acc);
+        result.setUsername(user);
+        result.setPassword(passwd);
+        return result;
     }
 
     @Test
@@ -85,18 +93,20 @@ public class FileCredentialsRepoTest {
         parseLine.setAccessible(true);
 
         Credentials result = (Credentials) parseLine
-                .invoke(credentialsRepo, "id:0;;account:testacc_1;;passwd:test_password_1");
+                .invoke(credentialsRepo, "id:0;;account:testacc_1;;username:test_username1;;passwd:test_password_1");
 
         System.out.println("[FileCredentialsRepoTest:getLineTest]");
-        System.out.println("Expected " + "0;testacc_1;test_password_1");
-        System.out.println("Actual " + String.format(Locale.US,"%d;%s;%s",
+        System.out.println("Expected " + "0;testacc_1;test_username1;test_password_1");
+        System.out.println("Actual " + String.format(Locale.US,"%d;%s;%s;%s",
                 result.getId(),
-                result.getAccountName(),
+                result.getAccountname(),
+                result.getUsername(),
                 result.getPassword()
         ));
 
         assertEquals(0,result.getId());
-        assertEquals("testacc_1",result.getAccountName());
+        assertEquals("testacc_1",result.getAccountname());
+        assertEquals("test_username1",result.getUsername());
         assertEquals("test_password_1",result.getPassword());
 
     }
@@ -108,9 +118,9 @@ public class FileCredentialsRepoTest {
         Method getLineMethod = credentialsRepo.getClass().getDeclaredMethod("getLine", Credentials.class);
         getLineMethod.setAccessible(true);
 
-        String expected = "id:0;;account:testacc_1;;passwd:test_password_1";
+        String expected = "id:0;;account:testacc_1;;username:test_username1;;passwd:test_password_1";
 
-        Credentials credential = new Credentials(0,"testacc_1","test_password_1");
+        Credentials credential = createTestCredentials(0,"testacc_1","test_username1","test_password_1");
         String result = (String) getLineMethod
                 .invoke(credentialsRepo, credential);
 

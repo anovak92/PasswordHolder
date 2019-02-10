@@ -86,7 +86,7 @@ public class CredentialsActivity extends AppCompatActivity implements Credential
             default:
                 throw new RuntimeException("Unknown mode");
         }
-        accountInput.setText(currentCredentials.getAccountName());
+        accountInput.setText(currentCredentials.getAccountname());
         passwordInput.setText(currentCredentials.getPassword());
     }
 
@@ -100,7 +100,7 @@ public class CredentialsActivity extends AppCompatActivity implements Credential
     private Credentials getCredentialById(int id) throws IOException {
         Credentials credentials = credentialsRepo.loadCredentials().get(id);
         if (credentials == null) {
-            credentials = new Credentials(id, "", "");
+            credentials = new Credentials(id);
         }
 
         return credentials;
@@ -128,7 +128,7 @@ public class CredentialsActivity extends AppCompatActivity implements Credential
         }
 
         try {
-            currentCredentials.setAccountName(accountInput.getText().toString());
+            currentCredentials.setAccountname(accountInput.getText().toString());
             currentCredentials.setPassword(passwordInput.getText().toString());
 
             Map<Integer, Credentials> credentialsMap = credentialsRepo.loadCredentials();
