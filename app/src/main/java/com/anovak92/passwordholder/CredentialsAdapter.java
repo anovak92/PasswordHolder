@@ -3,6 +3,7 @@ package com.anovak92.passwordholder;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -27,16 +28,13 @@ public class CredentialsAdapter extends
     static class CredentialsViewHolder extends RecyclerView.ViewHolder {
         TextView accountView;
         TextView usernameView;
-        TextView passwordView;
         Button deleteButton;
 
-        CredentialsViewHolder(LinearLayout itemView) {
+        CredentialsViewHolder(View itemView) {
             super(itemView);
-
-            this.accountView = (TextView) itemView.getChildAt(0);
-            this.usernameView = (TextView) itemView.getChildAt(1);
-            this.passwordView = (TextView) itemView.getChildAt(2);
-            this.deleteButton = (Button) itemView.getChildAt(3);
+            this.accountView = itemView.findViewById(R.id.accountname_view);
+            this.usernameView = itemView.findViewById(R.id.username_view);
+            this.deleteButton = itemView.findViewById(R.id.remove_item_button);
         }
     }
 
@@ -52,19 +50,16 @@ public class CredentialsAdapter extends
                                                                        int viewType) {
         LinearLayout v = (LinearLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.credentials_row, parent, false);
-
         return new CredentialsViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CredentialsViewHolder holder, int position) {
         Credentials element = mDataset.get(position);
-        holder.usernameView.setText(element.getAccountName());
-        holder.passwordView.setText(element.getPassword());
-
+        holder.accountView.setText(element.getAccountname());
+        holder.usernameView.setText(element.getUsername());
         holder.deleteButton.setOnClickListener(v -> callback.delete(position));
-        holder.itemView.setOnClickListener(v -> callback.view(element.getId()));
-
+        holder.itemView.setOnClickListener(v -> callback.view(position));
     }
 
     @Override
