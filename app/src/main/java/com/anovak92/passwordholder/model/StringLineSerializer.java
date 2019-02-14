@@ -5,7 +5,7 @@ import java.util.Locale;
 final class StringLineSerializer {
 
     Credentials deserialize(String line) {
-        String regex = "^(id:)(\\d+?)(;;account:)(\\S+?)(;;username:)(\\S+?)(;;passwd:)(\\S+?)";
+        String regex = "^(id:)(\\d+)(;;account:)(\\S+)(;;username:)(\\S+)(;;passwd:)(\\S+)";
 
         int id = Integer.parseInt(line.replaceAll(regex,"$2"));
         String accountname = line.replaceAll(regex,"$4");
