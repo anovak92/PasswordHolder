@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.util.List;
 
 public class FileCredentialsRepository {
+
     private static File dataFile;
+    private static List<Credentials> dataset;
+
     private static FileCredentialsRepository instance = null;
 
     public static FileCredentialsRepository getInstance() {
@@ -23,23 +26,21 @@ public class FileCredentialsRepository {
         return instance;
     }
 
+    public static void setFile(File file) throws IOException {
+        dataFile = file;
+        if (!dataFile.exists()) {
+            boolean created = dataFile.createNewFile();
+        }
+        dataset = null;
+    }
+
     private FileCredentialsLoader loader;
     private FileCredentialsSaver saver;
-
-    private static List<Credentials> dataset;
 
     private FileCredentialsRepository(
             FileCredentialsLoader loader,
             FileCredentialsSaver saver
     ) {
-        if (!dataFile.exists()) {
-            try {
-                boolean created = dataFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         this.loader = loader;
         this.saver = saver;
     }
