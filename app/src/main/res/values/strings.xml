@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">PasswordHolder</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_credentials">CredentialsActivity</string>
+    <string name="title_activity_credentials">Credentials</string>
     <string name="account_input_label">Account:</string>
     <string name="password_input_label">Password:</string>
+    <string name="username_input_label">Username</string>
 </resources>
