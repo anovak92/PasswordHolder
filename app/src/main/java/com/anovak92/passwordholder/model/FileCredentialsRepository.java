@@ -50,10 +50,10 @@ public class FileCredentialsRepository {
     }
 
     public void saveDataset() throws IOException {
-        dataset = loader.load();
+        saver.save(dataset);
     }
 
     public void loadDataset() throws IOException {
-        saver.save(dataset);
+        dataset = loader.load();
     }
 }
